@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="بوابة الاستعلام عن موقع العمل للموظفين">
+  <title>بوابة الاستعلام عن موقع العمل</title>
+  <style>
+    :root{--green:#176b45;--deep:#105336;--pale:#eaf5ee;--ink:#17251d;--muted:#68766e;--line:#dce7df}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f4faf6,#edf4ef);font-family:Tahoma,Arial,sans-serif;color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px}
+    .wrap{width:min(100%,510px)}.brand{display:flex;align-items:center;gap:12px;margin:0 auto 18px;justify-content:center;color:var(--deep)}.mark{width:48px;height:48px;border-radius:15px;background:var(--green);display:grid;place-items:center;color:white;font-size:25px;box-shadow:0 8px 20px #176b452b}
+    .brand small{display:block;color:var(--muted);margin-top:4px}.card{background:white;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:0 18px 55px #183d2810}.eyebrow{text-align:center;color:var(--green);font-size:13px;font-weight:bold}.title{text-align:center;margin:9px 0 8px;font-size:25px}.intro{text-align:center;color:var(--muted);font-size:14px;line-height:1.8;margin:0 0 26px}
+    label{display:block;font-size:14px;font-weight:bold;margin:0 0 9px}.input{width:100%;height:54px;border:1px solid #cbd9cf;border-radius:12px;padding:0 15px;font-size:19px;letter-spacing:2px;outline:none;direction:ltr;text-align:center}.input:focus{border-color:var(--green);box-shadow:0 0 0 3px #176b4518}.btn{width:100%;height:52px;margin-top:14px;border:0;border-radius:12px;background:var(--green);color:white;font-size:16px;font-weight:bold;cursor:pointer}.btn:hover{background:var(--deep)}.btn:disabled{opacity:.65;cursor:wait}.message{display:none;margin-top:17px;padding:13px;border-radius:11px;font-size:14px;line-height:1.7}.message.error{display:block;background:#fff2f0;color:#a12d22;border:1px solid #f4d5d1}.result{display:none;margin-top:20px;border:1px solid var(--line);border-radius:15px;overflow:hidden}.result-head{background:var(--pale);padding:13px 16px;color:var(--deep);font-weight:bold}.field{padding:15px 17px;border-top:1px solid var(--line)}.field span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.field strong{font-size:16px;line-height:1.7}.privacy{text-align:center;color:var(--muted);font-size:11px;line-height:1.8;margin:20px 8px 0}.footer{text-align:center;color:#849188;font-size:11px;margin-top:16px}
+    @media(max-width:480px){body{padding:14px}.card{padding:23px 19px}.title{font-size:22px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="brand"><div class="mark" aria-hidden="true">⌂</div><div><strong>بوابة شؤون الموظفين</strong><small>خدمة الاستعلام الإلكتروني</small></div></div>
+    <section class="card">
+      <div class="eyebrow">خدمة إلكترونية</div>
+      <h1 class="title">الاستعلام عن موقع العمل</h1>
+      <p class="intro">أدخل الرقم الوطني لمعرفة اسم الموظف وموقع عمله المسجل.</p>
+      <form id="lookupForm">
+        <label for="nationalId">الرقم الوطني</label>
+        <input class="input" id="nationalId" name="national_id" type="text" inputmode="numeric" autocomplete="off" maxlength="12" minlength="12" pattern="[0-9]{12}" placeholder="أدخل 12 رقماً" required>
+        <button class="btn" id="submitBtn" type="submit">استعلام</button>
+      </form>
+      <div class="message" id="message" role="status" aria-live="polite"></div>
+      <section class="result" id="result" aria-live="polite">
+        <div class="result-head">نتيجة الاستعلام</div>
+        <div class="field"><span>اسم الموظف</span><strong id="employeeName"></strong></div>
+        <div class="field"><span>موقع العمل</span><strong id="workLocation"></strong></div>
+      </section>
+      <p class="privacy">تُستخدم بيانات الرقم الوطني لغرض الاستعلام فقط. لا تشارك رقمك الوطني مع أي شخص.</p>
+    </section>
+    <div class="footer">بوابة الاستعلام عن موقع العمل</div>
+  </main>
+<script>
+const form=document.getElementById('lookupForm'), input=document.getElementById('nationalId'), btn=document.getElementById('submitBtn'), msg=document.getElementById('message'), result=document.getElementById('result');
+input.addEventListener('input',()=>{input.value=input.value.replace(/[^0-9]/g,'').slice(0,12);});
+form.addEventListener('submit',async(e)=>{e.preventDefault();result.style.display='none';msg.className='message';msg.textContent='';const id=input.value.trim();if(!/^\d{12}$/.test(id)){msg.className='message error';msg.textContent='يرجى إدخال رقم وطني صحيح مكوّن من 12 رقماً.';return;}btn.disabled=true;btn.textContent='جارٍ البحث…';try{const response=await fetch('/api/lookup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({national_id:id})});const data=await response.json();if(!response.ok||!data.ok){msg.className='message error';msg.textContent=data.message||'تعذر إتمام الاستعلام.';return;}document.getElementById('employeeName').textContent=data.name;document.getElementById('workLocation').textContent=data.location;result.style.display='block';}catch(_){msg.className='message error';msg.textContent='تعذر الاتصال بالخدمة. يرجى المحاولة لاحقاً.';}finally{btn.disabled=false;btn.textContent='استعلام';}});
+</script>
+</body></html>
