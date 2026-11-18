@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استعلام عمل الموظف</title>
-    <!-- استدعاء ملف البيانات الخارجي -->
-    <script src="data.js"></script>
     <style>
         body {
             font-family: Tahoma, sans-serif;
@@ -92,12 +90,35 @@
         </div>
         <button onclick="searchEmployee()">بحث والاستعلام</button>
 
-        <div id="result">
-            <!-- ستظهر تفاصيل الموظف هنا -->
-        </div>
+        <div id="result"></div>
     </div>
 
     <script>
+        // قاعدة بيانات الموظفين مباشرة داخل الصفحة لضمان عملها بسلاسة
+        const employeesData = {
+            "1001": { 
+                name: "محمد أحمد", 
+                job: "إداري", 
+                department: "الشؤون الإدارية", 
+                qualification: "بكالوريوس إدارة أعمال", 
+                status: "على رأس العمل" 
+            },
+            "1002": { 
+                name: "سارة خالد", 
+                job: "مهندسة برمجيات", 
+                department: "تقنية المعلومات", 
+                qualification: "بكالوريوس علوم حاسب", 
+                status: "على رأس العمل" 
+            },
+            "1003": { 
+                name: "عبدالله العتيبي", 
+                job: "محاسب", 
+                department: "المالية", 
+                qualification: "بكالوريوس محاسبة", 
+                status: "على رأس العمل" 
+            }
+        };
+
         function searchEmployee() {
             var id = document.getElementById('empID').value.trim();
             var resultDiv = document.getElementById('result');
@@ -109,8 +130,7 @@
 
             resultDiv.style.display = "block";
             
-            // التحقق من وجود الموظف في ملف data.js
-            if(typeof employeesData !== 'undefined' && employeesData[id]) {
+            if(employeesData[id]) {
                 var emp = employeesData[id];
                 resultDiv.innerHTML = `
                     <div class="success-res">✅ تم العثور على بيانات الموظف</div>
